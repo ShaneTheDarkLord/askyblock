@@ -909,22 +909,15 @@ public class PluginConfig {
                     String[] split = material.split(":");
                     byte data = 0;
                     int value = blockValuesConfig.getInt("blocks." + material, 0);
-                    if (split.length>1) {
-                        data = Byte.valueOf(split[1]);
-                        value = Integer.valueOf(split[2]);
+                    String materialID = split[0];
+                    if (split[0].contains("/")) {
+                        data = Byte.parseByte(split[0].split("/")[1]);
+                        materialID = split[0].split("/")[0];
                     }
-                    MaterialData materialData = null;
-                    if (StringUtils.isNumeric(split[0])) {
-                        materialData = new MaterialData(Integer.parseInt(split[0]));
-                    } else {
-                        materialData = new MaterialData(Material.valueOf(split[0].toUpperCase()));
-                    }
-
+                    MaterialData materialData = StringUtils.isNumeric(materialID) ? new MaterialData(Integer.parseInt(materialID)) : new MaterialData(Material.valueOf(materialID.toUpperCase()));
                     materialData.setData(data);
                     Settings.blockValues.put(materialData, value);
-                    if (DEBUG) {
-                        plugin.getLogger().info(materialData.toString() + " value " + Settings.blockValues.get(materialData));
-                    }
+                    if (DEBUG) plugin.getLogger().info(materialData.toString() + " value " + Settings.blockValues.get(materialData));
                 } catch (Exception e) {
                     // e.printStackTrace();
                     plugin.getLogger().warning("Unknown material (" + material + ") in blockvalues.yml blocks section. Skipping...");
