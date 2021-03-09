@@ -14,15 +14,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<server.jars>${project.basedir}/lib</server.jars>
 	</properties>
-	<!-- Ignore or delete the distribution management part of this POM if you 
-		are not tastybento! -->
-	<distributionManagement>
-		<repository>
-			<id>bintray-tastybento-maven-repo</id>
-			<name>tastybento-askyblock</name>
-			<url>https://api.bintray.com/maven/tastybento/maven-repo/askyblock/;publish=1</url>
-		</repository>
-	</distributionManagement>
 	<build>
 		<defaultGoal>clean package install</defaultGoal>
 		<finalName>askyblock</finalName>
