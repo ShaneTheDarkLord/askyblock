@@ -908,8 +908,10 @@ public class PluginConfig {
                 try {
                     String[] split = material.split(":");
                     byte data = 0;
+                    int value = blockValuesConfig.getInt("blocks." + material, 0);
                     if (split.length>1) {
                         data = Byte.valueOf(split[1]);
+                        value = Integer.valueOf(split[2]);
                     }
                     MaterialData materialData = null;
                     if (StringUtils.isNumeric(split[0])) {
@@ -919,7 +921,7 @@ public class PluginConfig {
                     }
 
                     materialData.setData(data);
-                    Settings.blockValues.put(materialData, blockValuesConfig.getInt("blocks." + material, 0));
+                    Settings.blockValues.put(materialData, value);
                     if (DEBUG) {
                         plugin.getLogger().info(materialData.toString() + " value " + Settings.blockValues.get(materialData));
                     }
