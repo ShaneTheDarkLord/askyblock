@@ -36,6 +36,7 @@ import org.bukkit.entity.Villager;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.wasteofplastic.askyblock.util.Util;
+import org.bukkit.material.MaterialData;
 
 /**
  * Stores all the info about an island
@@ -81,6 +82,7 @@ public class Island {
     private Multiset<Material> tileEntityCount = HashMultiset.create();
     // Biome
     private Biome biome;
+    private HashMap<MaterialData, Long> blocks = new HashMap<>();
 
     // Island protection settings
     private static final List<String> islandSettingsKey = new ArrayList<>();
@@ -807,7 +809,16 @@ public class Island {
         result.addAll(plugin.getPlayers().getMembers(owner));
         return result;
     }
-
+    public List<UUID> getMembersWithoutCoops() {
+        List<UUID> result = new ArrayList<UUID>();
+        if (owner == null) {
+            return result;
+        }
+        result.add(owner);
+        // Add any team members
+        result.addAll(plugin.getPlayers().getMembers(owner));
+        return result;
+    }
     /**
      * @return the isSpawn
      */
@@ -1006,5 +1017,11 @@ public class Island {
         }
 
     }
+    public HashMap<MaterialData, Long> getBlocks() {
+        return blocks;
+    }
 
+    public void setBlocks(HashMap<MaterialData, Long> blocks) {
+        this.blocks = blocks;
+    }
 }

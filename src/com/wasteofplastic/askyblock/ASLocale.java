@@ -180,6 +180,8 @@ public class ASLocale {
     public String islandhelpLevel;
     // /island level <player>
     public String islandhelpLevelPlayer;
+    // island info
+    public String islandhelpInfo;
     // /island top;
     public String islandhelpTop;
     // /island warps;

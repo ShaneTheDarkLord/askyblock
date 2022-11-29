@@ -75,8 +75,6 @@ import com.wasteofplastic.askyblock.Island;
 import com.wasteofplastic.askyblock.Island.SettingsFlag;
 import com.wasteofplastic.askyblock.LevelCalcByChunk;
 import com.wasteofplastic.askyblock.Settings;
-import com.wasteofplastic.askyblock.TopTen;
-import com.wasteofplastic.askyblock.Island.SettingsFlag;
 import com.wasteofplastic.askyblock.events.IslandJoinEvent;
 import com.wasteofplastic.askyblock.events.IslandLeaveEvent;
 import com.wasteofplastic.askyblock.events.IslandNewEvent;
@@ -121,7 +119,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
     private HashMap<UUID, Location> islandSpot = new HashMap<>();
     private List<UUID> leavingPlayers = new ArrayList<>();
     private boolean creatingTopTen;
-
+    private HashMap<String, IslandSubCommand> subCommands = new HashMap<>();
     /**
      * Constructor
      *
@@ -498,7 +496,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         plugin.getLogger().warning("* See 'schematicsection' in config.new.yml for replacement.   *");
         plugin.getLogger().warning("***************************************************************");
     }
-
+    public void addSubcommand(String cmd, IslandSubCommand iscmd) {
+        subCommands.put(cmd.toLowerCase(), iscmd);
+    }
     /**
      * Adds a player to a team. The player and the teamleader MAY be the same
      *
@@ -1040,6 +1040,13 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         }
         // The target player's UUID
         UUID targetPlayer = null;
+        if(split.length > 0) {
+            for (String subcmd : subCommands.keySet()) {
+                if (subcmd.equalsIgnoreCase(split[0])) {
+                    return subCommands.get(subcmd).onCommand(sender, split);
+                }
+            }
+        }
         // Check if a player has an island or is in a team
         switch (split.length) {
         // /island command by itself
@@ -1299,21 +1306,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     return true;
                 } else if (split[0].equalsIgnoreCase("about")) {
                     Util.sendMessage(player, ChatColor.GOLD + "About " + ChatColor.GREEN + plugin.getDescription().getName() + ChatColor.GOLD + " v" + ChatColor.AQUA + plugin.getDescription().getVersion() + ChatColor.GOLD + ":");
-                    Util.sendMessage(player, ChatColor.GOLD + "This plugin is free software: you can redistribute");
-                    Util.sendMessage(player, ChatColor.GOLD + "it and/or modify it under the terms of the GNU");
-                    Util.sendMessage(player, ChatColor.GOLD + "General Public License as published by the Free");
-                    Util.sendMessage(player, ChatColor.GOLD + "Software Foundation, either version 3 of the License,");
-                    Util.sendMessage(player, ChatColor.GOLD + "or (at your option) any later version.");
-                    Util.sendMessage(player, ChatColor.GOLD + "This plugin is distributed in the hope that it");
-                    Util.sendMessage(player, ChatColor.GOLD + "will be useful, but WITHOUT ANY WARRANTY; without");
-                    Util.sendMessage(player, ChatColor.GOLD + "even the implied warranty of MERCHANTABILITY or");
-                    Util.sendMessage(player, ChatColor.GOLD + "FITNESS FOR A PARTICULAR PURPOSE. See the");
-                    Util.sendMessage(player, ChatColor.GOLD + "GNU General Public License for more details.");
-                    Util.sendMessage(player, ChatColor.GOLD + "You should have received a copy of the GNU");
-                    Util.sendMessage(player, ChatColor.GOLD + "General Public License along with this plugin.");
-                    Util.sendMessage(player, ChatColor.GOLD + "If not, see <http://www.gnu.org/licenses/>.");
-                    Util.sendMessage(player, ChatColor.GOLD + "Source code is available on GitHub.");
-                    Util.sendMessage(player, ChatColor.GOLD + "(c) 2014 - 2018 by tastybento, Poslovitch");
                     return true;
                     // Spawn enderman
                     // Enderman enderman = (Enderman)
@@ -1644,6 +1636,15 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lang")) {
                     Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " lang <#>: "+ ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandHelpSelectLanguage);
                 }
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.info")) {
+                    Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " info: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpInfo);
+                }
+                for(String cmd : subCommands.keySet()) {
+                    IslandSubCommand subcmd = subCommands.get(cmd);
+                    if(VaultHelper.checkPerm(player, subcmd.getPermission())) {
+                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + subcmd.getDescription());
+                    }
+                }
                 // DEBUG - used to find meta tags
                 /*
                 if (player.getInventory().getItemInMainHand() != null) {
@@ -1746,6 +1747,54 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).topTenerrorExcluded.replace("[perm]", Settings.PERMPREFIX + "intopten"));
                         }
                         calculateIslandLevel(player, playerUUID);
+                        return true;
+                    }
+                } else {
+                    Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
+                    return true;
+                }
+            } else if (split[0].equalsIgnoreCase("info")) {
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.info")) {
+                    if (!plugin.getPlayers().inTeam(playerUUID) && !plugin.getPlayers().hasIsland(playerUUID)) {
+                        Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIsland);
+                        return true;
+                    } else {
+                        long endFrames = 0;
+                        long sponges = 0;
+                        long diamondBlocks = 0;
+                        long emeraldBlocks = 0;
+                        long lapisBlocks = 0;
+                        long redstoneBlocks = 0;
+                        long ironBlocks = 0 ;
+                        long goldBlocks = 0;
+                        long otherBlocks = 0;
+
+                        Island island = plugin.getGrid().getIsland(player.getUniqueId());
+                        HashMap<MaterialData, Long> blocks = island.getBlocks();
+                        for (MaterialData md : blocks.keySet()) {
+                            if (md.getItemType().equals(Material.ENDER_PORTAL_FRAME)) endFrames += blocks.get(md);
+                            else if (md.getItemType().equals(Material.SPONGE)) sponges += blocks.get(md);
+                            else if (md.getItemType().equals(Material.DIAMOND_BLOCK)) diamondBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.EMERALD_BLOCK)) emeraldBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.LAPIS_BLOCK)) lapisBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.REDSTONE_BLOCK)) redstoneBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.IRON_BLOCK)) ironBlocks += blocks.get(md);
+                            else if (md.getItemType().equals(Material.GOLD_BLOCK)) goldBlocks += blocks.get(md);
+                            else otherBlocks += blocks.get(md);
+                        }
+
+                        HashMap<Material,Long> values = new HashMap<>();
+                        values.put(Material.ENDER_PORTAL_FRAME, endFrames);
+                        values.put(Material.SPONGE, sponges);
+                        values.put(Material.DIAMOND_BLOCK, diamondBlocks);
+                        values.put(Material.EMERALD_BLOCK, emeraldBlocks);
+                        values.put(Material.LAPIS_BLOCK, lapisBlocks);
+                        values.put(Material.REDSTONE_BLOCK, redstoneBlocks);
+                        values.put(Material.IRON_BLOCK, ironBlocks);
+                        values.put(Material.GOLD_BLOCK, goldBlocks);
+                        values.put(Material.SMOOTH_BRICK, otherBlocks);
+                        player.openInventory(plugin.getInfoPanel().infoPanel(island, values));
+                        Util.sendMessage(player, ChatColor.GREEN + "Type /is level to update your block counts.");
                         return true;
                     }
                 } else {

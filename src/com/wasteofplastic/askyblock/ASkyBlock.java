@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.wasteofplastic.askyblock.panels.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -65,11 +66,6 @@ import com.wasteofplastic.askyblock.listeners.PlayerEvents2;
 import com.wasteofplastic.askyblock.listeners.PlayerEvents3;
 import com.wasteofplastic.askyblock.listeners.WorldEnter;
 import com.wasteofplastic.askyblock.listeners.WorldLoader;
-import com.wasteofplastic.askyblock.panels.BiomesPanel;
-import com.wasteofplastic.askyblock.panels.ControlPanel;
-import com.wasteofplastic.askyblock.panels.SchematicsPanel;
-import com.wasteofplastic.askyblock.panels.SettingsPanel;
-import com.wasteofplastic.askyblock.panels.WarpPanel;
 import com.wasteofplastic.askyblock.util.HeadGetter;
 import com.wasteofplastic.askyblock.util.Util;
 import com.wasteofplastic.askyblock.util.VaultHelper;
@@ -142,6 +138,7 @@ public class ASkyBlock extends JavaPlugin {
     // Head getter
     private HeadGetter headGetter;
     private EntityLimits entityLimits;
+    private InfoPanel infoPanel;
 
     /**
      * Returns the World object for the island world named in config.yml.
@@ -605,7 +602,7 @@ public class ASkyBlock extends JavaPlugin {
             getServer().getPluginManager().callEvent(new IslandPreDeleteEvent(player, island));
             if (removeBlocks) {
                 grid.removePlayersFromIsland(island, player);
-                new DeleteIslandChunk(this, island);
+                new DeleteIslandChunk(plugin, island);
                 //new DeleteIslandByBlock(this, island);
             } else {
                 island.setLocked(false);
@@ -749,6 +746,9 @@ public class ASkyBlock extends JavaPlugin {
         // Schematics panel
         schematicsPanel = new SchematicsPanel(this);
         manager.registerEvents(schematicsPanel, this);
+        // Info panel
+        infoPanel = new InfoPanel(this);
+        manager.registerEvents(infoPanel, this);
         // Track incoming world teleports
         manager.registerEvents(new WorldEnter(this), this);
         // Team chat
@@ -921,7 +921,12 @@ public class ASkyBlock extends JavaPlugin {
         }
         return warpPanel;
     }
-
+    /**
+     * @return the infoPanel
+     */
+    public InfoPanel getInfoPanel() {
+        return infoPanel;
+    }
     /**
      * @return the schematicsPanel
      */

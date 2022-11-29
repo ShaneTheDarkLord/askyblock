@@ -266,11 +266,11 @@ public class ControlPanel implements Listener {
                         
                         // Update inventory
                         if(player.getOpenInventory().getTopInventory() != null) {
-                        	if(inventory.equals(player.getOpenInventory().getTopInventory())) {
-                        		Inventory newInventory = plugin.getChallenges().challengePanel(player);
-                        		if(inventory.getSize() == newInventory.getSize()) {
-                        			inventory.setContents(newInventory.getContents());
-                        			return;
+                            if(inventory.equals(player.getOpenInventory().getTopInventory())) {
+                                Inventory newInventory = plugin.getChallenges().challengePanel(player);
+                                if(inventory.getSize() == newInventory.getSize()) {
+                                    inventory.setContents(newInventory.getContents());
+                                    return;
                         		}
                         	}
                         }
@@ -278,9 +278,7 @@ public class ControlPanel implements Listener {
                         // Open new Inventory if update is not possible
                         player.closeInventory();
                         Bukkit.getScheduler().runTask(plugin, () -> player.openInventory(plugin.getChallenges().challengePanel(player)));
-                        
-                        
-                        
+
                     }
                 }
             }

@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import com.wasteofplastic.askyblock.commands.IslandSubCommand;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -72,7 +73,9 @@ public class ASkyBlockAPI {
     public Map<String, Boolean> getChallengeStatus(UUID playerUUID) {
         return Collections.unmodifiableMap(plugin.getPlayers().getChallengeStatus(playerUUID));
     }
-
+    public void registerSubcommand(String cmd, IslandSubCommand subCommand) {
+        plugin.getIslandCmd().addSubcommand(cmd, subCommand);
+    }
     /**
      * @param playerUUID - the player's UUID - player's UUID
      * @return Map of all of the known challenges and how many times each

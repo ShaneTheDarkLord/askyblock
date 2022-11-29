@@ -50,6 +50,7 @@ public class LevelCalcByChunk {
     private HashMap<MaterialData, Integer> limitCount;
     private boolean report;
     private long oldLevel;
+    private HashMap<MaterialData, Long> blocks = new HashMap<>();
 
 
     public LevelCalcByChunk(final ASkyBlock plugin, final Island island, final UUID targetPlayer, final CommandSender asker, final boolean report) {
@@ -112,7 +113,12 @@ public class LevelCalcByChunk {
         // Run async task to scan chunks
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             for (ChunkSnapshot chunk: chunkSnapshot) {
-                scanChunk(chunk);
+                try {
+                    scanChunk(chunk);
+                } catch(Exception e){
+                    plugin.getLogger().info(island.getOwner() + " " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
             // Nothing happened, change state
             checking = true;
@@ -158,6 +164,11 @@ public class LevelCalcByChunk {
             } else {
                 result.rawBlockCount += count;
                 result.mdCount.add(md);
+            }
+            if (blocks.containsKey(md)) {
+                blocks.put(md, blocks.get(md) + 1);
+            }else {
+                blocks.put(md, 1L);
             }
         }
     }
@@ -319,6 +330,7 @@ public class LevelCalcByChunk {
         if (!event.isCancelled()) {
             // Save the value
             plugin.getPlayers().setIslandLevel(island.getOwner(), event.getLongLevel());
+            island.setBlocks(blocks);
             if (plugin.getPlayers().inTeam(targetPlayer)) {
                 //plugin.getLogger().info("DEBUG: player is in team");
                 for (UUID member : plugin.getPlayers().getMembers(targetPlayer)) {

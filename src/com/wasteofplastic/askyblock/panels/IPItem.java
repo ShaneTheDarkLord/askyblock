@@ -67,7 +67,23 @@ public class IPItem {
         meta.setLore(this.description);
         item.setItemMeta(meta);
     }
-
+    /*
+    Only for info panel
+     */
+    public IPItem(Material material, List<String> description, int slot) {
+        this.flagValue = false;
+        this.slot = slot;
+        this.type = Type.INFO;
+        this.description.clear();
+        item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        this.description = description;
+        meta.setLore(this.description);
+        if (material.equals(Material.SMOOTH_BRICK)) {
+            meta.setDisplayName(ChatColor.WHITE + "Other Blocks");
+        }
+        item.setItemMeta(meta);
+    }
     /**
      * @param flagValue
      * @param material

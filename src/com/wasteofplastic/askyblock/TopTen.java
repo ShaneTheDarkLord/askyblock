@@ -70,10 +70,10 @@ public class TopTen implements Listener, Requester {
             Material.DIAMOND_BLOCK,
             Material.GOLD_BLOCK,
             Material.IRON_BLOCK,
-            Material.DIAMOND_ORE,
-            Material.GOLD_ORE,
-            Material.IRON_ORE,
-            Material.REDSTONE_ORE};
+            Material.DIAMOND,
+            Material.GOLD_INGOT,
+            Material.IRON_INGOT,
+            Material.REDSTONE};
     private final boolean DEBUG = false;
     // Store this as a static because it's the same for everyone and saves memory cleanup
     private Inventory gui;
@@ -434,6 +434,9 @@ public class TopTen implements Listener, Requester {
             UUID uuid = plugin.getPlayers().getUUID(playerName);
             if (uuid != null && plugin.getWarpSignsListener().getWarp(uuid) != null) {
                 Util.runCommand(player, "is warp " + playerName);
+                if (player.hasPermission("askyblock.adminwarp")) {
+                    Util.runCommand(player, "asadmin tp " + playerName);
+                }
             }
         }
         if (event.getSlotType().equals(SlotType.OUTSIDE)) {

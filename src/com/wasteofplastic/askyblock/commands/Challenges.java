@@ -1647,19 +1647,20 @@ public class Challenges implements CommandExecutor, TabCompleter {
      * @return inventory
      */
     public Inventory challengePanel(Player player) {
-    	if(playerChallengeLevel.containsKey(player.getUniqueId())) {	
-    		String level = playerChallengeLevel.get(player.getUniqueId());	  
-    		return challengePanel(player, level);
+        if(playerChallengeLevel.containsKey(player.getUniqueId())) {
+            String level = playerChallengeLevel.get(player.getUniqueId());
+            return challengePanel(player, level);
         }else {
-        	String maxLevel = "";
-        	for (String level : Settings.challengeLevels) {
-	            if (checkLevelCompletion(player, level) > 0) {
-	                maxLevel = level;
-	                break;
-	            }
-	        }
-        	return challengePanel(player, maxLevel);
+            String maxLevel = "";
+            for (String level : Settings.challengeLevels) {
+                if (checkLevelCompletion(player, level) > 0) {
+                    maxLevel = level;
+                    break;
+                }
+            }
+            return challengePanel(player, maxLevel);
         }
+
         
     }
 

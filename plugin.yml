@@ -9,11 +9,12 @@ loadbefore: [Multiverse-Core]
 commands:
     island:
         description: Main player command
-        aliases: [is, island]
+        aliases: [is, island, i]
         usage:  |
              /island help
     asadmin:
         description: Admin commands
+        aliases: [skyadmin, isa, ia, islandadmin]
         usage:  |
             /asadmin
     asc:
